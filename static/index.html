@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Humanizer</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='85' font-family='Georgia'>h</text><circle cx='78' cy='78' r='12' fill='%23b3372c'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wordmark">humanizer<span class="dot">.</span></div>
+  <p class="tagline">Make AI text read like a person wrote it. Free, no limits.</p>
+  <div class="engine-badge" id="engineBadge" title="Rewrite engine">…</div>
+</header>
+
+<section class="controls">
+  <div class="control-group">
+    <span class="control-label">Mode</span>
+    <div class="pills" id="modePills">
+      <button class="pill active" data-mode="standard">Standard</button>
+      <button class="pill" data-mode="formal">Formal</button>
+      <button class="pill" data-mode="informal">Informal</button>
+      <button class="pill" data-mode="academic">Academic</button>
+      <button class="pill" data-mode="shorten">Shorten</button>
+      <button class="pill" data-mode="expand">Expand</button>
+    </div>
+  </div>
+  <div class="control-group grow">
+    <span class="control-label">Lock terms <em>(kept verbatim)</em></span>
+    <div class="chips" id="chips">
+      <input id="chipInput" type="text" placeholder="type a term, press Enter">
+    </div>
+  </div>
+  <div class="control-group">
+    <span class="control-label">Variants</span>
+    <select id="variants">
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </select>
+  </div>
+</section>
+
+<main class="panes">
+  <section class="pane">
+    <div class="pane-head">
+      <h2>Original</h2>
+      <span class="count" id="inCount">0 words</span>
+    </div>
+    <textarea id="input" spellcheck="false" placeholder="Paste AI-generated text here…"></textarea>
+    <div class="pane-foot">
+      <div class="gauge" id="gaugeBefore" hidden></div>
+      <div class="foot-actions">
+        <button class="ghost" id="checkBtn">Check AI signs</button>
+        <button class="ghost" id="clearBtn">Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="middle">
+    <button class="primary" id="goBtn">Humanize&nbsp;→</button>
+  </div>
+
+  <section class="pane">
+    <div class="pane-head">
+      <h2>Rewrite</h2>
+      <div class="tabs" id="viewTabs" hidden>
+        <button class="tab active" data-view="clean">Clean</button>
+        <button class="tab" data-view="diff">Changes</button>
+      </div>
+      <div class="tabs" id="variantTabs" hidden></div>
+      <span class="count" id="outCount"></span>
+    </div>
+    <div class="output" id="output">
+      <p class="placeholder">The rewrite appears here. Changed wording shows as <mark>highlighted</mark> in the Changes view.</p>
+    </div>
+    <div class="pane-foot">
+      <div class="gauge" id="gaugeAfter" hidden></div>
+      <div class="foot-actions">
+        <button class="ghost" id="copyBtn" hidden>Copy</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="warnings" id="warnings" hidden></div>
+
+<footer class="note">
+  Score is a local heuristic (sentence rhythm, stock vocabulary, punctuation tells) —
+  an honest estimate, not a guarantee against any specific detector.
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
