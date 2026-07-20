@@ -29,10 +29,11 @@ async def _rewrite_chunk(chunk: str, mode: str, keywords: list[str], variant: in
 
 async def humanize(text: str, mode: str, keywords: list[str], variants: int = 1) -> dict:
     text = text.strip()
-    chunks = chunking.split_chunks(text)
+    chunks = chunking.split_chunks(text, max_words=engine.CHUNK_WORDS)
     if not chunks:
         raise ValueError("No text to humanize")
     variants = max(1, min(variants, 3))
+    formal = mode in ("formal", "academic")
 
     async def one_variant(v: int) -> dict:
         results = await asyncio.gather(
@@ -46,7 +47,7 @@ async def humanize(text: str, mode: str, keywords: list[str], variants: int = 1)
         return {
             "text": out,
             "diff": diffing.diff_segments(text, out),
-            "score": scorer.score(out),
+            "score": scorer.score(out, formal=formal),
             "warnings": warnings,
         }
 

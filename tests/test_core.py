@@ -66,6 +66,21 @@ def test_short_text_not_scored():
     assert scorer.score("Too short.")["score"] is None
 
 
+def test_formal_mode_ignores_contractions():
+    stiff = (
+        "The results indicate a strong correlation between the variables. "
+        "The sample was drawn from twelve facilities across three regions, "
+        "and each measurement was repeated twice. Prior work had suggested "
+        "a weaker effect. We attribute the difference to instrument drift, "
+        "which was not controlled in earlier studies of this phenomenon."
+    )
+    default = scorer.score(stiff)
+    formal = scorer.score(stiff, formal=True)
+    assert formal["score"] < default["score"]
+    assert "contractions" not in formal["metrics"]
+    assert "contractions" in default["metrics"]
+
+
 # ---------- chunking ----------
 
 def test_chunking_respects_paragraphs():

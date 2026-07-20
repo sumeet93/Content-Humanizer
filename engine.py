@@ -17,8 +17,16 @@ class EngineError(Exception):
 
 
 ENGINE = os.environ.get("HUMANIZER_ENGINE", "claude-cli")
-MODEL = os.environ.get("HUMANIZER_MODEL", "claude-opus-4-8")
+# Sonnet is the default: rewriting isn't intelligence-limited, and it costs
+# 40% less than Opus per token (and burns CLI subscription quota slower).
+MODEL = os.environ.get("HUMANIZER_MODEL", "claude-sonnet-5")
 _CLI_TIMEOUT = int(os.environ.get("HUMANIZER_CLI_TIMEOUT", "240"))
+
+# Each `claude --print` call carries ~20K tokens of harness overhead
+# (measured: 15K cache-read + 5.3K cache-write), so the CLI engine uses
+# large chunks to make fewer calls. The API engine has no such overhead
+# and uses smaller chunks for parallelism.
+CHUNK_WORDS = 900 if ENGINE == "api" else 2200
 
 _api_client = None
 

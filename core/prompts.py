@@ -10,7 +10,7 @@ MODES = {
     "informal": "Use a relaxed, conversational register, like explaining to a colleague.",
     "academic": "Use precise academic prose. Hedge claims appropriately. No first person.",
     "shorten": "Cut it to roughly 70% of the original length. Drop filler, keep every fact.",
-    "expand": "Grow it to roughly 130% of the original length by unpacking existing points. Do not invent new facts.",
+    "expand": "Expand it by about a third by unpacking existing points; stay under 140% of the original length. Do not invent new facts.",
 }
 
 BANNED_WORDS = [

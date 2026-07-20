@@ -45,7 +45,7 @@ Requires the `claude` CLI to be installed and logged in.
 ```bash
 export HUMANIZER_ENGINE=api
 export ANTHROPIC_API_KEY=sk-ant-...
-export HUMANIZER_MODEL=claude-opus-4-8   # or claude-sonnet-5 / claude-haiku-4-5 for cheaper
+export HUMANIZER_MODEL=claude-sonnet-5   # or claude-haiku-4-5 for cheaper, claude-opus-4-8 for max quality
 uvicorn app:app --host 0.0.0.0 --port 8787
 ```
 
@@ -57,9 +57,19 @@ front of it. One env var switches the engine; nothing else changes.
 | Env var | Default | Meaning |
 |---|---|---|
 | `HUMANIZER_ENGINE` | `claude-cli` | `claude-cli` or `api` |
-| `HUMANIZER_MODEL` | `claude-opus-4-8` | model for either engine |
+| `HUMANIZER_MODEL` | `claude-sonnet-5` | model for either engine |
 | `HUMANIZER_MAX_CHARS` | `120000` | per-request input cap |
 | `HUMANIZER_CLI_TIMEOUT` | `240` | seconds per CLI call |
+
+### Cost notes
+
+- Default model is **claude-sonnet-5**: rewrite quality is indistinguishable
+  from Opus for this task at 40% less per token. `claude-haiku-4-5` is
+  cheaper still if you batch large volumes through the API engine.
+- Each `claude --print` call carries ~20K tokens of CLI-harness overhead
+  (measured), so the CLI engine uses 2,200-word chunks (fewer calls); the
+  API engine has no overhead and uses 900-word chunks for parallelism.
+- The post-pass, scorer, and diff are pure Python — zero tokens.
 
 ## API
 

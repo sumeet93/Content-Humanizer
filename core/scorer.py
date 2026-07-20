@@ -25,7 +25,9 @@ def _sentences(text: str) -> list[str]:
     return [p for p in parts if _WORD.search(p)]
 
 
-def score(text: str) -> dict:
+def score(text: str, formal: bool = False) -> dict:
+    """AI-likeness estimate 0-100. `formal=True` (academic/formal registers)
+    drops the contraction signal — those registers legitimately avoid them."""
     words = _WORD.findall(text.lower())
     n_words = len(words)
     sents = _sentences(text)
@@ -58,8 +60,12 @@ def score(text: str) -> dict:
     c_trans = min(opener_frac / 0.30, 1.0)             # formulaic transitions
     c_contr = 1 - min(contraction_density / 8.0, 1.0)  # no contractions -> stiff
 
-    value = round(100 * (0.34 * c_burst + 0.22 * c_vocab + 0.12 * c_dash
-                         + 0.18 * c_trans + 0.14 * c_contr))
+    if formal:
+        raw = 0.34 * c_burst + 0.22 * c_vocab + 0.12 * c_dash + 0.18 * c_trans
+        value = round(100 * raw / 0.86)
+    else:
+        value = round(100 * (0.34 * c_burst + 0.22 * c_vocab + 0.12 * c_dash
+                             + 0.18 * c_trans + 0.14 * c_contr))
 
     if value <= 25:
         verdict = "Reads human"
@@ -70,10 +76,7 @@ def score(text: str) -> dict:
     else:
         verdict = "Reads AI-written"
 
-    return {
-        "score": value,
-        "verdict": verdict,
-        "metrics": {
+    metrics: dict = {
             "burstiness": {
                 "label": "Sentence rhythm",
                 "value": round(burstiness, 2),
@@ -98,13 +101,19 @@ def score(text: str) -> dict:
                 "good": opener_frac < 0.15,
                 "hint": "% of sentences opening with However/Moreover/etc.",
             },
-            "contractions": {
-                "label": "Contractions",
-                "value": round(contraction_density, 1),
-                "good": contraction_density >= 3,
-                "hint": "contractions per 1,000 words; stiff text has none",
-            },
-        },
+    }
+    if not formal:
+        metrics["contractions"] = {
+            "label": "Contractions",
+            "value": round(contraction_density, 1),
+            "good": contraction_density >= 3,
+            "hint": "contractions per 1,000 words; stiff text has none",
+        }
+
+    return {
+        "score": value,
+        "verdict": verdict,
+        "metrics": metrics,
         "words": n_words,
         "sentences": len(sents),
     }
