@@ -84,3 +84,20 @@ Modes: `standard`, `formal`, `informal`, `academic`, `shorten`, `expand`.
 ```bash
 .venv/bin/pytest tests/ -q
 ```
+
+## Document humanizer (CLI) — `humanize_doc.py`
+
+Humanize a whole Markdown/MDX file while leaving structure untouched — useful
+for humanizing generated pages/articles in bulk.
+
+```bash
+python humanize_doc.py in.md out.md [--mode formal] [--keywords "Term A,Term B"]
+```
+
+- Protects headings, tables, fenced code, `<script>` (JSON-LD) and YAML
+  frontmatter atomically — only prose paragraphs are rewritten.
+- Rewrites all prose blocks **concurrently** (tune with `HUMANIZER_CONCURRENCY`, default 8).
+- Auto-locks technical terms (spec codes, numbers+units, acronyms, emails, URLs)
+  so facts survive verbatim; add explicit locks with `--keywords`.
+- Rejects model chatter/refusals and keeps the original block; strips residual
+  process-leak sentences; repairs dash artifacts.
