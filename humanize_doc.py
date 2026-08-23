@@ -122,7 +122,10 @@ def segment(md):
     flush()
     return segs
 
-async def run(inp, outp, mode, extra_kw):
+async def run(inp, outp, mode, extra_kw, us_spelling=False):
+    _post = (lambda t: t)
+    if us_spelling:
+        from locale_us import normalize as _post
     md = open(inp).read()
     kw = auto_locked_terms(md, extra_kw)
     segs = segment(md)
@@ -144,7 +147,7 @@ async def run(inp, outp, mode, extra_kw):
         else:
             segs[i] = ("prose", _fix_artifacts(out_block))
     await asyncio.gather(*[do_block(i) for i in prose_idx])
-    out = _fix_artifacts("\n".join(t for _, t in segs))
+    out = _post(_fix_artifacts("\n".join(t for _, t in segs)))
     os.makedirs(os.path.dirname(os.path.abspath(outp)) or ".", exist_ok=True)
     open(outp, "w").write(out)
     before = "\n\n".join(t for k, t in segment(md) if k == "prose")
@@ -157,9 +160,11 @@ def main():
     ap.add_argument("infile"); ap.add_argument("outfile")
     ap.add_argument("--mode", default="formal", help="standard|formal|informal|academic|shorten|expand")
     ap.add_argument("--keywords", default="", help="comma-separated extra terms to lock verbatim")
+    ap.add_argument("--us-spelling", action="store_true", help="normalize British -> US spelling (US-audience docs)")
     a = ap.parse_args()
     def _abs(p): return p if os.path.isabs(p) else os.path.normpath(os.path.join(_ORIG_CWD, p))
-    asyncio.run(run(_abs(a.infile), _abs(a.outfile), a.mode, a.keywords.split(",") if a.keywords else []))
+    asyncio.run(run(_abs(a.infile), _abs(a.outfile), a.mode,
+                    a.keywords.split(",") if a.keywords else [], a.us_spelling))
 
 if __name__ == "__main__":
     main()
