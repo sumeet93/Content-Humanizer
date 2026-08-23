@@ -59,8 +59,14 @@ def _bad_rewrite(out, original):
     if out.count("?") > original.count("?") + 1: return True
     return False
 
+_SUFFIX_CAPS = re.compile(r"\b(Inc|Co|Corp|Ltd|Mfg|Ltda|GmbH|Pvt)\.(\s+)"
+    r"(Is|Or|And|Has|Have|Was|Were|Are|Builds|Makes|Made|Offers|Provides|Supplies|"
+    r"Operates|Of|The|A|An|To|In|For|With|As|At|That|Which|Based)\b")
 def _fix_artifacts(t):
     t = re.sub(r"\b(\d{1,3}),\s*(\d{1,3})\s+(week|hour|day|psi|bar|mm|month|year)", r"\1-\2 \3", t)
+    # company suffixes (Inc./Co./Ltd.) mis-read as sentence ends -> next function word wrongly
+    # capitalized; only lowercase a known function/verb set so real new sentences stay intact.
+    t = _SUFFIX_CAPS.sub(lambda m: f"{m.group(1)}.{m.group(2)}{m.group(3)[0].lower()}{m.group(3)[1:]}", t)
     out = []
     for ln in t.split("\n"):
         if _CHATTER.search(ln) and not ln.strip().startswith(("|", "#", "<", "{", "\"")):
