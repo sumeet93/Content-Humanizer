@@ -5,11 +5,13 @@ per-chunk and happen at most once, so a lost keyword costs one extra small
 call instead of a full-document redo.
 """
 import asyncio
+import os
 
 import engine
 from . import chunking, diffing, postpass, prompts, scorer
 
-_CONCURRENCY = asyncio.Semaphore(3)
+# Concurrent rewrite calls. Higher = faster on multi-block docs; env-tunable.
+_CONCURRENCY = asyncio.Semaphore(int(os.environ.get("HUMANIZER_CONCURRENCY", "8")))
 
 
 async def _rewrite_chunk(chunk: str, mode: str, keywords: list[str], variant: int) -> tuple[str, list[str]]:
