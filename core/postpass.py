@@ -74,9 +74,11 @@ def clean(text: str, keywords: list[str] | None = None) -> str:
     keywords = keywords or []
     text, masks = _protect(text, keywords)
 
-    # em-dashes read as an AI tell; turn spaced ones into commas, bare into space
-    text = re.sub(r"\s*—\s*", ", ", text)
-    text = re.sub(r"\s*–\s*", ", ", text)
+    # em-dashes read as an AI tell; turn spaced ones into commas, bare into space.
+    # BUT never touch a dash sitting between digits — that is a numeric range or ratio
+    # (6-8 weeks, 550-795 MPa, 1/16) and rewriting it to a comma corrupts the value.
+    text = re.sub(r"(?<!\d)\s*—\s*(?!\d)", ", ", text)
+    text = re.sub(r"(?<!\d)\s*–\s*(?!\d)", ", ", text)
 
     for pat, repl in SWAPS.items():
         text = _apply_cased(text, pat, repl)
