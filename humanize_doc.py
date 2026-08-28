@@ -55,7 +55,8 @@ def _bad_rewrite(out, original):
     if not out or not out.strip(): return True
     if _CHATTER.search(out): return True
     ow, iw = len(out.split()), len(original.split())
-    if iw >= 12 and ow < 0.55 * iw: return True
+    if iw >= 12 and ow < 0.55 * iw: return True   # lost substantial content
+    if iw >= 20 and ow > 1.9 * iw: return True    # ballooned -> likely fabricated/added content
     if out.count("?") > original.count("?") + 1: return True
     return False
 
